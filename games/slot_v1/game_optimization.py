@@ -67,10 +67,24 @@ class OptimizationSetup:
                     bias_weights=[0.5],
                 ).return_dict(),
             },
-            "bonus": {
+        }
+
+        # One block per buy-bonus tier (bonus10/12/15 -- see game_config.py's
+        # buy_bonus_tiers), all three starting from the same shape/values as
+        # the original single "bonus" mode's block (same 0.001/0.964 RTP
+        # split, same win-range scaling/bias). These are starting points for
+        # the optimizer, not hand-tuned per tier -- revisit scaling/bias if
+        # a tier's optimized win distribution looks off after a real run
+        # (e.g. the 15-spin tier may want its win-range buckets shifted
+        # higher than the 10-spin tier's, since more spins -> higher typical
+        # win -- not assumed here, let the optimizer/analysis surface it).
+        for bonus_mode_name in ("bonus10", "bonus12", "bonus15"):
+            self.game_config.opt_params[bonus_mode_name] = {
                 "conditions": {
                     "wincap": ConstructConditions(
-                        rtp=0.001, av_win=wincaps["bonus"], search_conditions=wincaps["bonus"]
+                        rtp=0.001,
+                        av_win=wincaps[bonus_mode_name],
+                        search_conditions=wincaps[bonus_mode_name],
                     ).return_dict(),
                     "freegame": ConstructConditions(rtp=0.964, hr="x").return_dict(),
                 },
@@ -124,7 +138,6 @@ class OptimizationSetup:
                     bias_ranges=[(200.0, 350.0)],
                     bias_weights=[0.3],
                 ).return_dict(),
-            },
-        }
+            }
 
         verify_optimization_input(self.game_config, self.game_config.opt_params)

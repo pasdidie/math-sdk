@@ -19,7 +19,9 @@ if __name__ == "__main__":
 
     num_sim_args = {
         "base": int(1e6),
-        "bonus": int(1e6),
+        "bonus10": int(1e6),
+        "bonus12": int(1e6),
+        "bonus15": int(1e6),
     }
 
     run_conditions = {

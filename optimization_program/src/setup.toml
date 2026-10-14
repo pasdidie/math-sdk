@@ -11,6 +11,6 @@ max_trial_dist = 15
 game_name = "slot_v1"
 path_to_games = "../games/"
 run_1000_batch = false
-bet_type = "bonus"
+bet_type = "bonus15"
 threads_for_fence_construction = 20
 threads_for_show_construction = 20

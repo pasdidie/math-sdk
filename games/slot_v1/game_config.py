@@ -288,7 +288,41 @@ class GameConfig(Config):
             "force_freegame": False,
         }
 
-        mode_maxwins = {"base": 5000, "bonus": 5000}
+        # Buy-bonus tiers: one per organic scatter-trigger tier (3/4/5
+        # scatters -> 10/12/15 free spins, see self.freespin_triggers
+        # below). The organic `freegame_condition`/`wincap_condition`
+        # above pick a tier at random (weighted 50/20/5, and 4/5-only for
+        # wincap) via `scatter_triggers` -- a buyer needs to know exactly
+        # how many spins they're getting *before* paying, so each tier
+        # gets its own copy of these conditions with `scatter_triggers`
+        # pinned to a single key (get_random_outcome on a 1-key dict always
+        # returns that key, see src/calculations/statistics.py). Built with
+        # dict unpacking (never mutating the shared originals in place) so
+        # `base`'s own distributions -- which keep using the original
+        # weighted dicts unchanged -- are provably unaffected.
+        freegame_condition_tiers = {
+            3: {**freegame_condition, "scatter_triggers": {3: 1}},
+            4: {**freegame_condition, "scatter_triggers": {4: 1}},
+            5: {**freegame_condition, "scatter_triggers": {5: 1}},
+        }
+        wincap_condition_tiers = {
+            3: {**wincap_condition, "scatter_triggers": {3: 1}},
+            4: {**wincap_condition, "scatter_triggers": {4: 1}},
+            5: {**wincap_condition, "scatter_triggers": {5: 1}},
+        }
+
+        mode_maxwins = {"base": 5000, "bonus10": 5000, "bonus12": 5000, "bonus15": 5000}
+        # name -> (scatter tier, cost). Cost is a starting point for the
+        # optimizer/simulation pass, not a final value -- see docs/PAR_SHEET.md
+        # once re-run (derived from the organic per-tier average win value,
+        # same ~1.3-2x buy-premium approach as the original single "bonus"
+        # mode's 100x, see docs/DECISIONS.md).
+        buy_bonus_tiers = {
+            "bonus10": (3, 90.0),
+            "bonus12": (4, 110.0),
+            "bonus15": (5, 140.0),
+        }
+
         # Contains all game-logic simulation conditions
         self.bet_modes = [
             BetMode(
@@ -311,22 +345,25 @@ class GameConfig(Config):
                     Distribution(criteria="basegame", quota=0.5, conditions=basegame_condition),
                 ],
             ),
-            BetMode(
-                name="bonus",
-                cost=100.0,
-                rtp=self.rtp,
-                max_win=mode_maxwins["bonus"],
-                auto_close_disabled=False,
-                is_feature=False,
-                is_buybonus=True,
-                distributions=[
-                    Distribution(
-                        criteria="wincap",
-                        quota=0.001,
-                        win_criteria=mode_maxwins["bonus"],
-                        conditions=wincap_condition,
-                    ),
-                    Distribution(criteria="freegame", quota=0.1, conditions=freegame_condition),
-                ],
-            ),
         ]
+        for name, (tier, cost) in buy_bonus_tiers.items():
+            self.bet_modes.append(
+                BetMode(
+                    name=name,
+                    cost=cost,
+                    rtp=self.rtp,
+                    max_win=mode_maxwins[name],
+                    auto_close_disabled=False,
+                    is_feature=False,
+                    is_buybonus=True,
+                    distributions=[
+                        Distribution(
+                            criteria="wincap",
+                            quota=0.001,
+                            win_criteria=mode_maxwins[name],
+                            conditions=wincap_condition_tiers[tier],
+                        ),
+                        Distribution(criteria="freegame", quota=0.1, conditions=freegame_condition_tiers[tier]),
+                    ],
+                )
+            )

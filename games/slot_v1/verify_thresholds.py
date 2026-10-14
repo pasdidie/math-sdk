@@ -46,7 +46,12 @@ def load_lookup_table(mode: str) -> list[tuple[int, int]]:
     return rows
 
 
-MODE_COST = {"base": 1.0, "bonus": 100.0}  # kept in sync manually with game_config.py bet_modes
+MODE_COST = {
+    "base": 1.0,
+    "bonus10": 90.0,
+    "bonus12": 110.0,
+    "bonus15": 140.0,
+}  # kept in sync manually with game_config.py bet_modes
 
 
 def compute_stats(rows: list[tuple[int, int]], cost: float) -> dict:
@@ -74,7 +79,7 @@ def compute_stats(rows: list[tuple[int, int]], cost: float) -> dict:
 
 
 def main() -> int:
-    modes = ["base", "bonus"]
+    modes = ["base", "bonus10", "bonus12", "bonus15"]
     stats_by_mode = {}
     violations: list[str] = []
 
@@ -112,15 +117,19 @@ def main() -> int:
                 f"[base] hit rate {base_hit_rate:.4f} below the {BASE_HIT_RATE_MIN} (1/20) floor"
             )
 
-    if "base" in stats_by_mode and "bonus" in stats_by_mode:
-        rtp_gap = abs(stats_by_mode["base"]["rtp"] - stats_by_mode["bonus"]["rtp"])
-        print(f"RTP gap base/bonus: {rtp_gap:.4f}")
-        if rtp_gap > RTP_MODE_GAP_MAX:
-            violations.append(
-                f"RTP gap between base ({stats_by_mode['base']['rtp']:.4f}) and bonus "
-                f"({stats_by_mode['bonus']['rtp']:.4f}) is {rtp_gap:.4f}, exceeds "
-                f"the {RTP_MODE_GAP_MAX} (0.5pt) limit"
-            )
+    # CLAUDE.md section 2 reads as a global rule across all modes, not just
+    # base vs. one bonus mode -- check every pair now that there are 4.
+    mode_names = list(stats_by_mode.keys())
+    for i, mode_a in enumerate(mode_names):
+        for mode_b in mode_names[i + 1 :]:
+            rtp_gap = abs(stats_by_mode[mode_a]["rtp"] - stats_by_mode[mode_b]["rtp"])
+            print(f"RTP gap {mode_a}/{mode_b}: {rtp_gap:.4f}")
+            if rtp_gap > RTP_MODE_GAP_MAX:
+                violations.append(
+                    f"RTP gap between {mode_a} ({stats_by_mode[mode_a]['rtp']:.4f}) and "
+                    f"{mode_b} ({stats_by_mode[mode_b]['rtp']:.4f}) is {rtp_gap:.4f}, exceeds "
+                    f"the {RTP_MODE_GAP_MAX} (0.5pt) limit"
+                )
 
     print()
     if violations:
