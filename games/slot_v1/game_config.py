@@ -18,8 +18,10 @@ class GameConfig(Config):
     def __init__(self):
         super().__init__()
         self.game_id = "slot_v1"
+        self.provider_name = "GAMBDIDIE"
         self.provider_number = 0
-        self.working_name = "Stake Slot V1 (theme TBD)"
+        self.game_name = "Azure Anvil"
+        self.working_name = "Azure Anvil"
         self.wincap = 5000.0
         self.win_type = "lines"
         self.rtp = 0.9650
