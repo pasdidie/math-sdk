@@ -39,13 +39,13 @@ class OptimizationSetup:
                         {
                             "criteria": "freegame",
                             "scale_factor": 0.8,
-                            "win_range": (1000, 2000),
+                            "win_range": (500, 1000),
                             "probability": 1.0,
                         },
                         {
                             "criteria": "freegame",
                             "scale_factor": 1.2,
-                            "win_range": (3000, 4000),
+                            "win_range": (1500, 2400),
                             "probability": 1.0,
                         },
                     ]
@@ -69,8 +69,7 @@ class OptimizationSetup:
             },
         }
 
-        # One block per buy-bonus tier (bonus10/12/15 -- see game_config.py's
-        # buy_bonus_tiers), all three starting from the same shape/values as
+        # Single buy-bonus mode (55x), originally one block per Azure Anvil tier, all three starting from the same shape/values as
         # the original single "bonus" mode's block (same 0.001/0.964 RTP
         # split, same win-range scaling/bias). These are starting points for
         # the optimizer, not hand-tuned per tier -- revisit scaling/bias if
@@ -111,13 +110,13 @@ class OptimizationSetup:
                         {
                             "criteria": "freegame",
                             "scale_factor": 0.8,
-                            "win_range": (1000, 2000),
+                            "win_range": (500, 1000),
                             "probability": 1.0,
                         },
                         {
                             "criteria": "freegame",
                             "scale_factor": 1.2,
-                            "win_range": (3000, 4000),
+                            "win_range": (1500, 2400),
                             "probability": 1.0,
                         },
                     ]
@@ -135,7 +134,7 @@ class OptimizationSetup:
                 ).return_dict(),
                 "distribution_bias": ConstructFenceBias(
                     applied_criteria=["freegame"],
-                    bias_ranges=[(200.0, 350.0)],
+                    bias_ranges=[(50.0, 100.0)],
                     bias_weights=[0.3],
                 ).return_dict(),
             }

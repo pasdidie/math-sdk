@@ -18,14 +18,14 @@ if __name__ == "__main__":
     profiling = False
 
     num_sim_args = {
-        "base": int(1e4),
-        "bonus": int(1e4),
+        "base": int(1e6),
+        "bonus": int(1e6),
     }
 
     run_conditions = {
         "run_sims": True,
-        "run_optimization": False,  # Phase 2 (math v0)
-        "run_analysis": False,
+        "run_optimization": True,  # Phase 3 (math optimisee)
+        "run_analysis": True,
         "run_format_checks": True,
     }
     target_modes = list(num_sim_args.keys())

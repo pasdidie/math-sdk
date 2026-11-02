@@ -77,7 +77,7 @@ def compute_stats(rows: list[tuple[int, int]], cost: float) -> dict:
 
 
 def main() -> int:
-    modes = ["base", "bonus10", "bonus12", "bonus15"]
+    modes = ["base", "bonus"]
     stats_by_mode = {}
     violations: list[str] = []
 
