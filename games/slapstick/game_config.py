@@ -18,7 +18,9 @@ class GameConfig(Config):
     def __init__(self):
         super().__init__()
         self.game_id = "slapstick"
+        self.provider_name = "GAMBDIDIE"
         self.provider_number = 0
+        self.game_name = "Slapstick"
         self.working_name = "Slapstick"
         self.wincap = 2500.0
         self.win_type = "lines"
